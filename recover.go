@@ -6,14 +6,16 @@ import (
 	"runtime/debug"
 )
 
+// DeferRecover recover from panic.
+func DeferRecover(tag string) {
+	if err := recover(); err != nil {
+		log.Printf("%s, recover from: %v\n%s\n", tag, err, debug.Stack())
+	}
+}
+
 // WithRecover recover from panic.
 func WithRecover(tag string, f func()) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("%s, recover from: %v\n%s\n", tag, err, debug.Stack())
-		}
-	}()
-
+	defer DeferRecover(tag)
 	f()
 }
 
