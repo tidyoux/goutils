@@ -9,8 +9,8 @@ const (
 	enabled = true
 )
 
-// LogTimeCost def
-func LogTimeCost(tag string) func() {
+// DeferLogTimeCost logs time cost.
+func DeferLogTimeCost(tag string) func() {
 	start := time.Now()
 	return func() {
 		if enabled {
@@ -19,8 +19,8 @@ func LogTimeCost(tag string) func() {
 	}
 }
 
-// WithLogTimeCost def
+// WithLogTimeCost logs time cost.
 func WithLogTimeCost(tag string, f func()) {
-	defer LogTimeCost(tag)()
+	defer DeferLogTimeCost(tag)()
 	f()
 }
