@@ -1,8 +1,9 @@
 package goutils
 
 import (
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -14,7 +15,7 @@ func DeferLogTimeCost(tag string) func() {
 	start := time.Now()
 	return func() {
 		if enabled {
-			log.Printf("%s time cost: %s", tag, time.Now().Sub(start))
+			log.Infof("%s time cost: %s", tag, time.Now().Sub(start))
 		}
 	}
 }

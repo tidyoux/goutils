@@ -2,14 +2,15 @@ package goutils
 
 import (
 	"fmt"
-	"log"
 	"runtime/debug"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // DeferRecover recover from panic.
 func DeferRecover(tag string) {
 	if err := recover(); err != nil {
-		log.Printf("%s, recover from: %v\n%s\n", tag, err, debug.Stack())
+		log.Errorf("%s, recover from: %v\n%s\n", tag, err, debug.Stack())
 	}
 }
 

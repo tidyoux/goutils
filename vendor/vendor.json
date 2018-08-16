@@ -1,0 +1,30 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "Egp3n8yTaAuVtrA14LJrTWDgkO4=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "e4b0c6d7829bcf64435536c4a88f4088a3c76203",
+			"revisionTime": "2018-08-13T15:35:01Z"
+		},
+		{
+			"checksumSHA1": "6U7dCaxxIMjf5V02iWgyAwppczw=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "9gwZHdu7sMojYYoGl5Ax6NSFaeU=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "1c9583448a9c3aa0f9a6a5241bf73c0bd8aafded",
+			"revisionTime": "2018-08-15T07:37:39Z"
+		},
+		{
+			"checksumSHA1": "apLcjhTfa/nKhpXTXjpfIZxVTKQ=",
+			"path": "golang.org/x/sys/windows",
+			"revision": "1c9583448a9c3aa0f9a6a5241bf73c0bd8aafded",
+			"revisionTime": "2018-08-15T07:37:39Z"
+		}
+	],
+	"rootPath": "github.com/tidyoux/goutils"
+}
