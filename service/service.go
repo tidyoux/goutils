@@ -24,11 +24,11 @@ func NewWithInterval(w Worker, interval time.Duration) *Service {
 	}
 }
 
-func (s *Service) Start() {
+func (s *Service) Start() error {
 	err := s.worker.Init()
 	if err != nil {
 		log.Errorf("worker (%s) init failed, %v", s.worker.Name(), err)
-		return
+		return err
 	}
 
 	log.Infof("worker (%s) started", s.worker.Name())
