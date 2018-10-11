@@ -1,13 +1,12 @@
 package goutils
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 )
 
 // ReadBytes reads n bytes from reader.
-func ReadBytes(reader *bufio.Reader, n int) ([]byte, error) {
+func ReadBytes(reader io.Reader, n int) ([]byte, error) {
 	if reader == nil || n <= 0 {
 		return nil, fmt.Errorf("invalid args (%v, %v)", reader, n)
 	}
