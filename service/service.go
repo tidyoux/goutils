@@ -1,9 +1,11 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/tidyoux/goutils"
 )
 
 type Service struct {
@@ -52,11 +54,6 @@ func (s *Service) Stop() {
 }
 
 func (s *Service) work() {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Errorf("recover from worker (%s), %v", s.worker.Name(), err)
-		}
-	}()
-
-	s.worker.Work()
+	tag := fmt.Sprintf("worker (%s)", s.worker.Name())
+	goutils.WithRecover(tag, s.worker.Work, nil)
 }
