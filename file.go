@@ -34,6 +34,13 @@ func WithReadFile(name string, fun func(*bufio.Reader) error) error {
 	})
 }
 
+// WithReadFileLineByLine opens a file, reads string line-by-line.
+func WithReadFileLineByLine(name string, fun func(string) error) error {
+	return WithReadFile(name, func(reader *bufio.Reader) error {
+		return ForeachLine(reader, fun)
+	})
+}
+
 // WithWriteFile opens a file for write, and close it.
 func WithWriteFile(name string, fun func(*bufio.Writer) error) error {
 	return WithOpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666, func(f *os.File) error {

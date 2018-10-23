@@ -1,6 +1,7 @@
 package goutils
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 )
@@ -31,4 +32,16 @@ func ReadBytes(reader io.Reader, n int) ([]byte, error) {
 			return buf, nil
 		}
 	}
+}
+
+// ForeachLine reads string from reader line-by-line.
+func ForeachLine(reader io.Reader, fun func(line string) error) error {
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		err := fun(scanner.Text())
+		if err != nil {
+			return err
+		}
+	}
+	return scanner.Err()
 }
