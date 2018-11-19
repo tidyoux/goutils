@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/howeyc/gopass"
@@ -35,8 +36,12 @@ func (c *Command) Flags() *pflag.FlagSet {
 	return c.cmd.PersistentFlags()
 }
 
-func (c *Command) Password(name string) error {
-	password, err := c.Flags().GetString(name)
+func (c *Command) Password(flagName string) error {
+	return c.PasswordWithConfirm(flagName, false)
+}
+
+func (c *Command) PasswordWithConfirm(flagName string, with bool) error {
+	password, err := c.Flags().GetString(flagName)
 	if err != nil {
 		return err
 	}
@@ -48,7 +53,19 @@ func (c *Command) Password(name string) error {
 			return err
 		}
 
-		c.Flags().Set(name, string(ps))
+		if with {
+			fmt.Printf("confirm:")
+			ps1, err := gopass.GetPasswdMasked()
+			if err != nil {
+				return err
+			}
+
+			if !bytes.Equal(ps1, ps) {
+				return fmt.Errorf("password not equal")
+			}
+		}
+
+		c.Flags().Set(flagName, string(ps))
 	}
 	return nil
 }
