@@ -35,18 +35,21 @@ func (s *Service) Start() error {
 
 	log.Infof("worker (%s) started", s.worker.Name())
 
+L:
 	for {
 		select {
 		case <-s.closeCh:
 			s.worker.Destroy()
 			log.Infof("worker (%s) stopped", s.worker.Name())
-			break
+			break L
 		default:
 			s.work()
 		}
 
 		time.Sleep(s.interval)
 	}
+
+	return nil
 }
 
 func (s *Service) Stop() {
