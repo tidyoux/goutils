@@ -63,16 +63,19 @@ func TestPair(t *testing.T) {
 	assert(t, item2Price == 0.3, "role item2 price not equal")
 }
 
-const data = `(role
-	"this is the data description."
+const data = `
+"this is the data description."
 
-	; base data
+(version "0.1.1")
+
+(role
+	; this is a comment.
 	(name "role1")
 	(level 1)
 	(movable true)
 	(tags "robot" "npc")
 
-	(items ; item data
+	(items ; another comment.
 		((name "item\"1\"")
 			(price 1.5))
 		((name "'item'2")
@@ -89,13 +92,16 @@ func TestParser(t *testing.T) {
 
 	fmt.Println(c.Format(0))
 
+	desc, _ := c.String("", 0)
+	assert(t, desc == dataDesc, "data description not equal")
+
+	version, _ := c.String("", "version")
+	assert(t, version == "0.1.1", "data version not equal")
+
 	role, err := c.Pair.Pair("role")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	desc, _ := role.String("", 0)
-	assert(t, desc == dataDesc, "data description not equal")
 
 	name, _ := role.String("", "name")
 	assert(t, name == "role1", "role name not equal")
