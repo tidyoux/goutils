@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	dataDesc = "this is the data description."
+	dataDesc = `This is the data description.
+This is the second line.`
 )
 
 func assert(t *testing.T, ok bool, msg string) {
@@ -63,10 +64,12 @@ func TestPair(t *testing.T) {
 	assert(t, item2Price == 0.3, "role item2 price not equal")
 }
 
-const data = `
-"this is the data description."
+var data = fmt.Sprintf(`
+"%s"
 
 (version "0.1.1")
+
+(3.14 "pi")
 
 (role
 	; this is a comment.
@@ -81,7 +84,7 @@ const data = `
 		((name "'item'2")
 			(price 0.3))
 	)
-)`
+)`, dataDesc)
 
 func TestParser(t *testing.T) {
 	c := New()
@@ -97,6 +100,9 @@ func TestParser(t *testing.T) {
 
 	version, _ := c.String("", "version")
 	assert(t, version == "0.1.1", "data version not equal")
+
+	pi, _ := c.String("", "3.14")
+	assert(t, pi == "pi", "number key not equal")
 
 	role, err := c.Pair.Pair("role")
 	if err != nil {
