@@ -5,11 +5,16 @@ import (
 	"strings"
 )
 
-type Number string
+type Number struct {
+	raw string
+	num string
+}
 
 func NewNumber(v string) *Number {
-	n := Number(v)
-	return &n
+	return &Number{
+		raw: v,
+		num: strings.Replace(v, "'", "", -1),
+	}
 }
 
 func (n *Number) Type() ValueType {
@@ -18,7 +23,7 @@ func (n *Number) Type() ValueType {
 
 func (n *Number) Int64() (int64, error) {
 	var d int64
-	_, err := fmt.Sscanf(string(*n), "%d", &d)
+	_, err := fmt.Sscanf(n.num, "%d", &d)
 	if err != nil {
 		return 0, err
 	}
@@ -27,7 +32,7 @@ func (n *Number) Int64() (int64, error) {
 
 func (n *Number) Float64() (float64, error) {
 	var d float64
-	_, err := fmt.Sscanf(string(*n), "%f", &d)
+	_, err := fmt.Sscanf(n.num, "%f", &d)
 	if err != nil {
 		return 0, err
 	}
@@ -35,19 +40,21 @@ func (n *Number) Float64() (float64, error) {
 }
 
 func (n *Number) SetInt64(v int64) {
-	*n = Number(fmt.Sprintf("%d", v))
+	n.raw = fmt.Sprintf("%d", v)
+	n.num = n.raw
 }
 
 func (n *Number) SetFloat64(v float64) {
-	*n = Number(fmt.Sprintf("%f", v))
+	n.raw = fmt.Sprintf("%f", v)
+	n.num = n.raw
 }
 
 func (n *Number) String() string {
-	return string(*n)
+	return n.num
 }
 
 func (n *Number) Format(deep int) string {
-	return strings.Repeat(" ", deep*4) + n.String()
+	return strings.Repeat(" ", deep*4) + n.raw
 }
 
 func (n *Number) Reset() {

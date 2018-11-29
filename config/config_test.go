@@ -29,7 +29,7 @@ func TestPair(t *testing.T) {
 				Add(NewPair("price").Add(NewNumber("1.5")))).
 			Add(NewPair("").
 				Add(NewPair("name").Add(NewString("'item'2"))).
-				Add(NewPair("price").Add(NewNumber("0.3")))))
+				Add(NewPair("price").Add(NewNumber("12'000.5")))))
 
 	fmt.Println(role.Format(0))
 
@@ -44,6 +44,10 @@ func TestPair(t *testing.T) {
 
 	movable, _ := role.Bool(false, "movable")
 	assert(t, movable == true, "role movable not equal")
+
+	role.SetBool(false, "movable")
+	movable, _ = role.Bool(true, "movable")
+	assert(t, movable == false, "role setted movable not equal")
 
 	tag1, _ := role.String("", "tags", 0)
 	assert(t, tag1 == "robot", "role tag1 not equal")
@@ -61,7 +65,7 @@ func TestPair(t *testing.T) {
 	assert(t, item2Name == "'item'2", "role item2 name not equal")
 
 	item2Price, _ := role.Float64(0, "items", 1, "price")
-	assert(t, item2Price == 0.3, "role item2 price not equal")
+	assert(t, item2Price == 12000.5, "role item2 price not equal")
 }
 
 var data = fmt.Sprintf(`
@@ -82,7 +86,7 @@ var data = fmt.Sprintf(`
 		((name "item\"1\"")
 			(price 1.5))
 		((name "'item'2")
-			(price 0.3))
+			(price 12'000.5))
 	)
 )`, dataDesc)
 
@@ -118,6 +122,10 @@ func TestParser(t *testing.T) {
 	movable, _ := role.Bool(false, "movable")
 	assert(t, movable == true, "role movable not equal")
 
+	role.SetBool(false, "movable")
+	movable, _ = role.Bool(true, "movable")
+	assert(t, movable == false, "role setted movable not equal")
+
 	tag1, _ := role.String("", "tags", 0)
 	assert(t, tag1 == "robot", "role tag1 not equal")
 
@@ -134,5 +142,5 @@ func TestParser(t *testing.T) {
 	assert(t, item2Name == "'item'2", "role item2 name not equal")
 
 	item2Price, _ := role.Float64(0, "items", 1, "price")
-	assert(t, item2Price == 0.3, "role item2 price not equal")
+	assert(t, item2Price == 12000.5, "role item2 price not equal")
 }

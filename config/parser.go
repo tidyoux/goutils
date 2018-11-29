@@ -91,6 +91,7 @@ func parsePairKey(data []rune) (string, int, error) {
 func parseNumber(data []rune) (*Number, int, error) {
 	var meetDot bool
 	var i int
+	var s string
 L:
 	for ; i < len(data); i++ {
 		switch {
@@ -101,14 +102,17 @@ L:
 				return nil, 0, fmt.Errorf("parse number failed, too many dot")
 			}
 			meetDot = true
-		case unicode.IsDigit(data[i]):
+		case data[i] == '\'':
 			continue
+		case unicode.IsDigit(data[i]):
+			//
 		default:
 			break L
 		}
+		s += string(data[i])
 	}
 
-	if meetDot && i == 1 {
+	if s == "." {
 		return nil, 0, fmt.Errorf("parse number failed, invalid format")
 	}
 
