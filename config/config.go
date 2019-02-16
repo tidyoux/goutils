@@ -37,3 +37,15 @@ func (c *Config) Parse(raw string) error {
 	}
 	return nil
 }
+
+func (c *Config) Format() string {
+	var s string
+	vn := c.ValueNumber()
+	for i, v := range c.values {
+		s += v.Format(0)
+		if i < vn-1 {
+			s += "\n"
+		}
+	}
+	return s
+}

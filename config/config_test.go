@@ -97,7 +97,7 @@ func TestParser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fmt.Println(c.Format(0))
+	fmt.Println(c.Format())
 
 	desc, _ := c.String("", 0)
 	assert(t, desc == dataDesc, "data description not equal")
