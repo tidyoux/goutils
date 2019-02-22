@@ -9,9 +9,10 @@ import (
 )
 
 type Service struct {
-	worker   Worker
-	interval time.Duration
-	closeCh  chan struct{}
+	worker        Worker
+	interval      time.Duration
+	closeCh       chan struct{}
+	closeFinishCh chan struct{}
 }
 
 func New(w Worker) *Service {
@@ -20,9 +21,10 @@ func New(w Worker) *Service {
 
 func NewWithInterval(w Worker, interval time.Duration) *Service {
 	return &Service{
-		worker:   w,
-		interval: interval,
-		closeCh:  make(chan struct{}),
+		worker:        w,
+		interval:      interval,
+		closeCh:       make(chan struct{}),
+		closeFinishCh: make(chan struct{}),
 	}
 }
 
@@ -49,11 +51,13 @@ L:
 		time.Sleep(s.interval)
 	}
 
+	close(s.closeFinishCh)
 	return nil
 }
 
 func (s *Service) Stop() {
 	close(s.closeCh)
+	<-s.closeFinishCh
 }
 
 func (s *Service) work() {
