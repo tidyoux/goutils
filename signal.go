@@ -13,10 +13,12 @@ func RegisterSignalHandler(h func(os.Signal), sigs ...os.Signal) {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, sigs...)
 
-		s := <-c
-		log.Warnf("receive signal: %s", s)
-		if h != nil {
-			h(s)
+		for {
+			s := <-c
+			log.Warnf("receive signal: %s", s)
+			if h != nil {
+				h(s)
+			}
 		}
 	}, nil)
 }
