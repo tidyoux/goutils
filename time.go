@@ -1,6 +1,7 @@
 package goutils
 
 import (
+	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -24,6 +25,34 @@ func DeferLogTimeCost(tag string) func() {
 func WithLogTimeCost(tag string, f func()) {
 	defer DeferLogTimeCost(tag)()
 	f()
+}
+
+var (
+	// ErrTimeout returns when timeout.
+	ErrTimeout = fmt.Errorf("timeout")
+)
+
+// WithTimeout runs f with a timeout.
+func WithTimeout(duration time.Duration, f func() error) error {
+	var (
+		c   = make(chan struct{})
+		err error
+	)
+
+	Go("WithTimeout", func() {
+		err = f()
+		close(c)
+	}, func(panicErr error) {
+		err = panicErr
+		close(c)
+	})
+
+	select {
+	case <-c:
+		return err
+	case <-time.After(duration):
+		return ErrTimeout
+	}
 }
 
 // UpdateMonitor monitors for update interval.
