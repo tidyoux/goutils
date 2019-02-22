@@ -9,10 +9,12 @@ import (
 )
 
 type Service struct {
-	worker        Worker
-	interval      time.Duration
-	closeCh       chan struct{}
-	closeFinishCh chan struct{}
+	worker   Worker
+	interval time.Duration
+
+	lastUpdateTime time.Time
+	closeCh        chan struct{}
+	closeFinishCh  chan struct{}
 }
 
 func New(w Worker) *Service {
@@ -45,10 +47,13 @@ L:
 			log.Infof("worker (%s) stopped", s.worker.Name())
 			break L
 		default:
-			s.work()
+			if time.Now().Sub(s.lastUpdateTime) >= s.interval {
+				s.lastUpdateTime = time.Now()
+				s.work()
+			}
 		}
 
-		time.Sleep(s.interval)
+		time.Sleep(time.Millisecond)
 	}
 
 	close(s.closeFinishCh)
