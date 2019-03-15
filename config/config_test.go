@@ -19,17 +19,17 @@ func assert(t *testing.T, ok bool, msg string) {
 func TestPair(t *testing.T) {
 	role := NewPair("role").
 		Add(NewString(dataDesc)).
-		Add(NewPair("name").Add(NewString("role1"))).
-		Add(NewPair("level").Add(NewNumber("1"))).
-		Add(NewPair("movable").Add(NewBool(true))).
-		Add(NewPair("tags").Add(NewString("robot")).Add(NewString("npc"))).
+		Add(NewPair("name").AddString("role1")).
+		Add(NewPair("level").AddNumber("1")).
+		Add(NewPair("movable").AddBool(true)).
+		Add(NewPair("tags").AddString("robot").AddString("npc")).
 		Add(NewPair("items").
 			Add(NewPair("").
-				Add(NewPair("name").Add(NewString("item\"1\""))).
-				Add(NewPair("price").Add(NewNumber("1.5")))).
+				Add(NewPair("name").AddString("item\"1\"")).
+				Add(NewPair("price").AddNumber("1.5"))).
 			Add(NewPair("").
-				Add(NewPair("name").Add(NewString("'item'2"))).
-				Add(NewPair("price").Add(NewNumber("12'000.5")))))
+				Add(NewPair("name").AddString("'item'2")).
+				Add(NewPair("price").AddNumber("12'000.5"))))
 
 	fmt.Println(role.Format(0))
 

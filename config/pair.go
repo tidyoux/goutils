@@ -53,12 +53,24 @@ func (p *Pair) Add(value Value) *Pair {
 	return p
 }
 
-func (p *Pair) ValueNumber() int {
+func (p *Pair) AddNumber(v string) *Pair {
+	return p.Add(NewNumber(v))
+}
+
+func (p *Pair) AddString(v string) *Pair {
+	return p.Add(NewString(v))
+}
+
+func (p *Pair) AddBool(v bool) *Pair {
+	return p.Add(NewBool(v))
+}
+
+func (p *Pair) ValueCount() int {
 	return len(p.values)
 }
 
 func (p *Pair) Value(index int) (Value, bool) {
-	if index < 0 || p.ValueNumber() <= index {
+	if index < 0 || p.ValueCount() <= index {
 		return nil, false
 	}
 
@@ -109,7 +121,7 @@ func (p *Pair) FindByType(valueType ValueType, paths ...interface{}) (Value, err
 
 	if value.Type() == PairType {
 		value := value.(*Pair)
-		if value.ValueNumber() > 0 {
+		if value.ValueCount() > 0 {
 			first, _ := value.Value(0)
 			if first.Type() == valueType {
 				return first, nil
@@ -222,7 +234,7 @@ func (p *Pair) Format(deep int) string {
 	}
 	s += "\n"
 
-	vn := p.ValueNumber()
+	vn := p.ValueCount()
 	for i, v := range p.values {
 		s += v.Format(deep + 1)
 		if i < vn-1 {

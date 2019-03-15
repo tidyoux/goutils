@@ -40,7 +40,7 @@ func (c *Config) Parse(raw string) error {
 
 func (c *Config) Format() string {
 	var s string
-	vn := c.ValueNumber()
+	vn := c.ValueCount()
 	for i, v := range c.values {
 		s += v.Format(0)
 		if i < vn-1 {
