@@ -47,7 +47,7 @@ func (c *Command) PasswordWithConfirm(flagName string, with bool) error {
 	}
 
 	if len(password) == 0 {
-		fmt.Printf("password:")
+		fmt.Printf("%s:", flagName)
 		ps, err := gopass.GetPasswdMasked()
 		if err != nil {
 			return err
