@@ -2,6 +2,8 @@ package goutils
 
 import (
 	"bufio"
+	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -51,4 +53,24 @@ func WithWriteFile(name string, fun func(*bufio.Writer) error) error {
 		}
 		return writer.Flush()
 	})
+}
+
+// CopyFile copys and transform data.
+func CopyFile(from, to string, transformers ...Transformer) error {
+	data, err := ioutil.ReadFile(from)
+	if err != nil {
+		return fmt.Errorf("read file %s failed, %v", from, err)
+	}
+
+	data, err = CombineTransformer(transformers).Transform(data)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(to, data, 0666)
+	if err != nil {
+		return fmt.Errorf("write file %s failed, %v", to, err)
+	}
+
+	return nil
 }

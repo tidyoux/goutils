@@ -2,6 +2,7 @@ package goutils
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 )
@@ -44,4 +45,41 @@ func ForeachLine(reader io.Reader, fun func(line string) error) error {
 		}
 	}
 	return scanner.Err()
+}
+
+// Transformer transforms bytes.
+type Transformer interface {
+	Transform([]byte) ([]byte, error)
+}
+
+// CombineTransformer combines multi transformers.
+type CombineTransformer []Transformer
+
+func (ts CombineTransformer) Transform(data []byte) ([]byte, error) {
+	var err error
+	for i, t := range ts {
+		data, err = t.Transform(data)
+		if err != nil {
+			return nil, fmt.Errorf("perform transformer at index %d failed, %v", i, err)
+		}
+	}
+	return data, nil
+}
+
+// The TransformFunc type is an adapter to allow the use of
+// ordinary functions as Transformer.
+type TransformFunc func([]byte) ([]byte, error)
+
+func (f TransformFunc) Transform(data []byte) ([]byte, error) {
+	return f(data)
+}
+
+// StringReplacer replaces string data.
+type StringReplacer map[string]string
+
+func (r StringReplacer) Transform(data []byte) ([]byte, error) {
+	for old, new := range r {
+		data = bytes.ReplaceAll(data, []byte(old), []byte(new))
+	}
+	return data, nil
 }
