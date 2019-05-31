@@ -58,6 +58,10 @@ type CombineTransformer []Transformer
 func (ts CombineTransformer) Transform(data []byte) ([]byte, error) {
 	var err error
 	for i, t := range ts {
+		if t == nil {
+			continue
+		}
+
 		data, err = t.Transform(data)
 		if err != nil {
 			return nil, fmt.Errorf("perform transformer at index %d failed, %v", i, err)
