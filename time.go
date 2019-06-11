@@ -57,19 +57,34 @@ func WithTimeout(duration time.Duration, f func() error) error {
 
 // UpdateMonitor monitors for update interval.
 type UpdateMonitor struct {
+	originMaxInterval time.Duration
+	handleTimeout     func(int64, time.Duration)
+	adjustInterval    bool
+
 	maxInterval    time.Duration
 	value          int64
 	lastUpdateTime time.Time
-	handleTimeout  func(int64, time.Duration)
 }
 
 // NewUpdateMonitor returns a new UpdateMonitor.
 func NewUpdateMonitor(maxInterval time.Duration, handleTimeout func(int64, time.Duration)) *UpdateMonitor {
+	return newUpdateMonitor(maxInterval, handleTimeout, false)
+}
+
+// NewAutoAdjustUpdateMonitor returns a new auto adjust interval UpdateMonitor.
+func NewAutoAdjustUpdateMonitor(maxInterval time.Duration, handleTimeout func(int64, time.Duration)) *UpdateMonitor {
+	return newUpdateMonitor(maxInterval, handleTimeout, true)
+}
+
+func newUpdateMonitor(maxInterval time.Duration, handleTimeout func(int64, time.Duration), autoAdjustInterval bool) *UpdateMonitor {
 	return &UpdateMonitor{
+		originMaxInterval: maxInterval,
+		handleTimeout:     handleTimeout,
+		adjustInterval:    autoAdjustInterval,
+
 		maxInterval:    maxInterval,
 		value:          0,
 		lastUpdateTime: time.Now(),
-		handleTimeout:  handleTimeout,
 	}
 }
 
@@ -78,12 +93,24 @@ func (m *UpdateMonitor) Update(value int64) {
 	if value != m.value {
 		m.value = value
 		m.lastUpdateTime = time.Now()
+		m.maxInterval = m.originMaxInterval
 	} else {
-		interval := time.Now().Sub(m.lastUpdateTime)
-		if interval > m.maxInterval {
-			if m.handleTimeout != nil {
-				m.handleTimeout(m.value, interval)
-			}
+		m.Check()
+	}
+}
+
+// Check checks timeout.
+func (m *UpdateMonitor) Check() {
+	if m.handleTimeout == nil {
+		return
+	}
+
+	interval := time.Now().Sub(m.lastUpdateTime)
+	if interval > m.maxInterval {
+		m.handleTimeout(m.value, interval)
+
+		if m.adjustInterval {
+			m.maxInterval += m.originMaxInterval
 		}
 	}
 }
