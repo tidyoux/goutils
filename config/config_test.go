@@ -22,7 +22,7 @@ func TestPair(t *testing.T) {
 		Add(NewPair("name").AddString("role1")).
 		Add(NewPair("level").AddNumber("1")).
 		Add(NewPair("movable").AddBool(true)).
-		Add(NewPair("tags").AddString("robot").AddString("npc")).
+		Add(NewPair("tags").AddString("robot").AddString("np\\c")).
 		Add(NewPair("items").
 			Add(NewPair("").
 				Add(NewPair("name").AddString("item\"1\"")).
@@ -53,7 +53,7 @@ func TestPair(t *testing.T) {
 	assert(t, tag1 == "robot", "role tag1 not equal")
 
 	tag2, _ := role.String("", "tags", 1)
-	assert(t, tag2 == "npc", "role tag2 not equal")
+	assert(t, tag2 == "np\\c", "role tag2 not equal")
 
 	item1Name, _ := role.String("", "items", 0, "name")
 	assert(t, item1Name == "item\"1\"", "role item1 name not equal")
@@ -80,7 +80,7 @@ var data = fmt.Sprintf(`
 	(name "role1")
 	(level 1)
 	(movable true)
-	(tags "robot" "npc")
+	(tags "robot" "np\c")
 
 	(items ; another comment.
 		((name "item\"1\"")
@@ -130,7 +130,7 @@ func TestParser(t *testing.T) {
 	assert(t, tag1 == "robot", "role tag1 not equal")
 
 	tag2, _ := role.String("", "tags", 1)
-	assert(t, tag2 == "npc", "role tag2 not equal")
+	assert(t, tag2 == "np\\c", "role tag2 not equal")
 
 	item1Name, _ := role.String("", "items", 0, "name")
 	assert(t, item1Name == "item\"1\"", "role item1 name not equal")

@@ -25,7 +25,7 @@ func (s *String) Set(v string) {
 }
 
 func (s *String) Format(deep int) string {
-	temp := strings.Replace(s.String(), "\"", "\\\"", -1)
+	temp := strings.Replace(s.String(), `"`, `\"`, -1)
 	return strings.Repeat(" ", deep*4) + fmt.Sprintf(`"%s"`, temp)
 }
 

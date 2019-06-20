@@ -125,7 +125,7 @@ func parseString(data []rune) (*String, int, error) {
 		case '\\':
 			i++
 		case '"':
-			s := strings.Replace(string(data[1:i]), "\\", "", -1)
+			s := strings.Replace(string(data[1:i]), `\"`, `"`, -1)
 			return NewString(s), i + 1, nil
 		}
 	}
