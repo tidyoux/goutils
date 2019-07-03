@@ -7,18 +7,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	enabled = true
-)
+// DeferTimeCost calculates time cost.
+func DeferTimeCost(h func(time.Duration)) func() {
+	start := time.Now()
+	return func() {
+		h(time.Now().Sub(start))
+	}
+}
+
+// TimeCost calculates time cost.
+func TimeCost(f func()) (cost time.Duration) {
+	defer DeferTimeCost(func(d time.Duration) {
+		cost = d
+	})()
+
+	f()
+	return
+}
 
 // DeferLogTimeCost logs time cost.
 func DeferLogTimeCost(tag string) func() {
-	start := time.Now()
-	return func() {
-		if enabled {
-			log.Infof("%s time cost: %s", tag, time.Now().Sub(start))
-		}
-	}
+	return DeferTimeCost(func(d time.Duration) {
+		log.Infof("%s time cost: %s", tag, d)
+	})
 }
 
 // WithLogTimeCost logs time cost.
