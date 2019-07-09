@@ -54,14 +54,14 @@ func (c *Command) PasswordWithConfirm(flagName string, with bool) error {
 		}
 
 		if with {
-			fmt.Printf("confirm:")
+			fmt.Printf("confirm %s:", flagName)
 			ps1, err := gopass.GetPasswdMasked()
 			if err != nil {
 				return err
 			}
 
 			if !bytes.Equal(ps1, ps) {
-				return fmt.Errorf("password not equal")
+				return fmt.Errorf("%s not equal", flagName)
 			}
 		}
 
