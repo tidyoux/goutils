@@ -20,102 +20,87 @@ func (b *AtomicBool) Is() bool {
 	return atomic.LoadInt32((*int32)(b)) != 0
 }
 
-type BatchWork func() error
+type BatchWork func(idx int) (interface{}, error)
+type BatchGather func(idx int, data interface{}) error
 
-func BatchDo(count int, create func(int) BatchWork) error {
-	works := MakeBatchWorks(count, create)
-	return NewBatch(works).Do()
-}
-
-func MakeBatchWorks(count int, create func(int) BatchWork) []BatchWork {
-	works := make([]BatchWork, 0, count)
-	for i := 0; i < count; i++ {
-		works = append(works, create(i))
-	}
-
-	return works
-}
-
-func batchGoroutineNumber() int {
-	return runtime.NumCPU() * 2
+func BatchDo(count int, work BatchWork, gather BatchGather) error {
+	return NewBatch(count, work, gather).Do()
 }
 
 type Batch struct {
-	works []BatchWork
-
-	goroutineNum    int
-	maxBatchWorkNum int
+	count  int
+	work   BatchWork
+	gather BatchGather
 }
 
-func NewBatch(works []BatchWork) *Batch {
-	var (
-		workNum         = len(works)
-		goroutineNum    = batchGoroutineNumber()
-		maxBatchWorkNum int
-	)
-
-	if workNum <= goroutineNum {
-		goroutineNum = workNum
-		maxBatchWorkNum = 1
-	} else {
-		maxBatchWorkNum = workNum / goroutineNum
-		goroutineNum = (workNum-1)/maxBatchWorkNum + 1
-	}
-
+func NewBatch(count int, work BatchWork, gather BatchGather) *Batch {
 	return &Batch{
-		works:           works,
-		goroutineNum:    goroutineNum,
-		maxBatchWorkNum: maxBatchWorkNum,
+		count:  count,
+		work:   work,
+		gather: gather,
 	}
 }
 
 func (b *Batch) Do() error {
-	if len(b.works) == 0 {
+	if b.count <= 0 {
 		return nil
 	}
 
 	var (
-		errs = make([]error, b.goroutineNum)
-		wg   sync.WaitGroup
+		goroutineNum = runtime.NumCPU() * 2
+		groupNum     = (b.count-1)/goroutineNum + 1
 	)
-	for i := 0; i < b.goroutineNum; i++ {
-		wg.Add(1)
 
-		idx := i
-		Go("Batch.do", func() {
-			b.do(idx, &wg, errs)
-		}, nil)
-	}
+	for i := 0; i < groupNum; i++ {
+		var (
+			start = i * goroutineNum
 
-	wg.Wait()
+			wg    sync.WaitGroup
+			datas = make([]interface{}, goroutineNum)
+			errs  = make([]error, goroutineNum)
+		)
+		for idx := start; idx < (start+goroutineNum) && idx < b.count; idx++ {
+			wg.Add(1)
 
-	for _, err := range errs {
-		if err != nil {
-			return err
+			workIdx := idx
+			dataIdx := idx - start
+			Go("Batch.do", func() {
+				b.do(&wg, workIdx, dataIdx, datas, errs)
+			}, nil)
+		}
+		wg.Wait()
+
+		for _, err := range errs {
+			if err != nil {
+				return err
+			}
+		}
+
+		if b.gather != nil {
+			dataNum := goroutineNum
+			if (start + dataNum) > b.count {
+				dataNum = b.count - start
+			}
+
+			for i, data := range datas[:dataNum] {
+				err := b.gather(start+i, data)
+				if err != nil {
+					return err
+				}
+			}
 		}
 	}
+
 	return nil
 }
 
-func (b *Batch) do(idx int, wg *sync.WaitGroup, errs []error) {
-	var err error
-	defer func() {
-		errs[idx] = err
-		wg.Done()
-	}()
+func (b *Batch) do(wg *sync.WaitGroup, workIdx, dataIdx int, datas []interface{}, errs []error) {
+	defer wg.Done()
 
-	var (
-		from = idx * b.maxBatchWorkNum
-		to   = from + b.maxBatchWorkNum
-	)
-	if to > len(b.works) {
-		to = len(b.works)
-	}
-
-	for i := from; i < to; i++ {
-		err = b.works[i]()
-		if err != nil {
-			return
-		}
+	data, err := b.work(workIdx)
+	if err != nil {
+		errs[dataIdx] = err
+	} else {
+		datas[dataIdx] = data
 	}
 }
