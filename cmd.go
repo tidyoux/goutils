@@ -10,5 +10,5 @@ func ExeCmd(name string, args []string, setter func(*exec.Cmd)) ([]byte, error) 
 	if setter != nil {
 		setter(c)
 	}
-	return c.Output()
+	return c.CombinedOutput()
 }
