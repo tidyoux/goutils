@@ -1,0 +1,70 @@
+package goutils
+
+import (
+	"fmt"
+	"os/exec"
+	"strconv"
+	"strings"
+	"time"
+)
+
+// ExeCmd is a simple wrapper of exec.Cmd.
+func ExeCmd(name string, args []string, setter func(*exec.Cmd)) ([]byte, error) {
+	c := exec.Command(name, args...)
+	if setter != nil {
+		setter(c)
+	}
+	return c.CombinedOutput()
+}
+
+func KillName(name string) error {
+	pid, err := GetPID(name)
+	if err != nil {
+		return fmt.Errorf("get %s pid failed, %v", name, err)
+	}
+
+	err = KillPID(pid)
+	if err != nil {
+		return fmt.Errorf("kill pid %d failed, %v", pid, err)
+	}
+
+	const maxTry = 10
+	for i := 0; i < maxTry; i++ {
+		time.Sleep(time.Second)
+
+		pid, _ := GetPID(name)
+		if pid <= 0 {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("kill %s(%d) timeout", name, pid)
+}
+
+func GetPID(name string) (int, error) {
+	out, err := ExeCmd("pidof", []string{name}, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	s := strings.TrimSpace(string(out))
+	if len(s) == 0 {
+		return 0, nil
+	}
+
+	pid, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("convert pid failed, %v", err)
+	}
+
+	return pid, nil
+}
+
+func KillPID(pid int) error {
+	if pid <= 0 {
+		return nil
+	}
+
+	_, err := ExeCmd("kill", []string{strconv.Itoa(pid)}, nil)
+	return err
+}
