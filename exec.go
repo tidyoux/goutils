@@ -47,11 +47,7 @@ func KillName(name string) error {
 }
 
 func GetPID(name string) (int, error) {
-	out, err := ExeCmd("pidof", []string{name}, nil)
-	if err != nil {
-		return 0, err
-	}
-
+	out, _ := ExeCmd("pidof", []string{name}, nil)
 	s := strings.TrimSpace(string(out))
 	if len(s) == 0 {
 		return 0, nil
