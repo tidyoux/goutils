@@ -22,6 +22,11 @@ func NoHup(cmd string, args []string, setter func(*exec.Cmd)) ([]byte, error) {
 	return ExeCmd("bash", []string{"-c", cmd}, setter)
 }
 
+func SetSID(cmd string, args []string, setter func(*exec.Cmd)) ([]byte, error) {
+	cmd = fmt.Sprintf("setsid %s %s > /dev/null 2> /dev/null < /dev/null &", cmd, strings.Join(args, " "))
+	return ExeCmd("bash", []string{"-c", cmd}, setter)
+}
+
 func KillName(name string) error {
 	pid, err := GetPID(name)
 	if err != nil {
