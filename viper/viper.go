@@ -6,6 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+func Get(key string) interface{} {
+	return viper.Get(key)
+}
+
 func GetInt64(key string, defaultValue int64) int64 {
 	if viper.IsSet(key) {
 		return viper.GetInt64(key)
