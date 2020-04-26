@@ -55,6 +55,15 @@ func WithWriteFile(name string, fun func(*bufio.Writer) error) error {
 	})
 }
 
+// FileLines returns the number of lines the file.
+func FileLines(name string) (n int, err error) {
+	err = WithReadFileLineByLine(name, func(string) error {
+		n++
+		return nil
+	})
+	return
+}
+
 // CopyFile copys and transform data.
 func CopyFile(from, to string, transformers ...Transformer) error {
 	data, err := ioutil.ReadFile(from)
