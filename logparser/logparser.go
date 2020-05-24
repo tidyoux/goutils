@@ -15,7 +15,7 @@ type Processor interface {
 	Done(lineNum int) bool
 	InRange(lineNum int) bool
 	Parse(lineNum int, data []byte) (LogEntry, error)
-	Accept(entry LogEntry) bool
+	Filter
 }
 
 func Do(file io.Reader, p Processor, showTime bool) error {
