@@ -13,8 +13,10 @@ type LogEntry fmt.Stringer
 
 type Processor interface {
 	Done(lineNum int) bool
-	InRange(lineNum int) bool
-	Parse(lineNum int, data []byte) (LogEntry, error)
+	LineInRange(lineNum int) bool
+	ParseTimestamp(data []byte) (time.Time, error)
+	TimeInRange(t time.Time) bool
+	ParseAll(lineNum int, timestamp time.Time, data []byte) (LogEntry, error)
 	Filter
 }
 
@@ -27,16 +29,17 @@ func Do(file io.Reader, p Processor, showTime bool) error {
 
 	var (
 		errBreak = errors.New("break")
-		n        int
+		lineNum  int
 	)
-	err := goutils.ForeachLine(file, func(line string) error {
-		n++
 
-		if p.Done(n) {
+	err := goutils.ForeachLine(file, func(line string) error {
+		lineNum++
+
+		if p.Done(lineNum) {
 			return errBreak
 		}
 
-		if !p.InRange(n) {
+		if !p.LineInRange(lineNum) {
 			return nil
 		}
 
@@ -44,9 +47,18 @@ func Do(file io.Reader, p Processor, showTime bool) error {
 			return nil
 		}
 
-		entry, err := p.Parse(n, []byte(line))
+		tm, err := p.ParseTimestamp([]byte(line))
 		if err != nil {
-			return fmt.Errorf("parse line %d failed, %v", n, err)
+			return fmt.Errorf("parse line %d timestamp failed, %v", lineNum, err)
+		}
+
+		if !p.TimeInRange(tm) {
+			return nil
+		}
+
+		entry, err := p.ParseAll(lineNum, tm, []byte(line))
+		if err != nil {
+			return fmt.Errorf("parse line %d failed, %v", lineNum, err)
 		}
 
 		if p.Accept(entry) {
@@ -57,5 +69,6 @@ func Do(file io.Reader, p Processor, showTime bool) error {
 	if err != nil && err != errBreak {
 		return err
 	}
+
 	return nil
 }
