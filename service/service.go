@@ -47,7 +47,7 @@ L:
 			log.Infof("worker (%s) stopped", s.worker.Name())
 			break L
 		default:
-			if time.Now().Sub(s.lastUpdateTime) >= s.interval {
+			if time.Since(s.lastUpdateTime) >= s.interval {
 				s.lastUpdateTime = time.Now()
 				s.work()
 			}

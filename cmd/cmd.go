@@ -32,6 +32,12 @@ func (c *Command) CobraCmd() *cobra.Command {
 	return c.cmd
 }
 
+func (c *Command) AddCommand(cmds ...*Command) {
+	for _, cc := range cmds {
+		c.cmd.AddCommand(cc.cmd)
+	}
+}
+
 func (c *Command) Flags() *pflag.FlagSet {
 	return c.cmd.PersistentFlags()
 }
