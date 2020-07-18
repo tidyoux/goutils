@@ -42,6 +42,10 @@ func (c *Command) Flags() *pflag.FlagSet {
 	return c.cmd.PersistentFlags()
 }
 
+func (c *Command) Args() []string {
+	return c.cmd.Flags().Args()
+}
+
 func (c *Command) Password(flagName string) error {
 	return c.PasswordWithConfirm(flagName, false)
 }
