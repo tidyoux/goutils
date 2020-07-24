@@ -8,13 +8,22 @@ import (
 	"time"
 )
 
-// ExeCmd is a simple wrapper of exec.Cmd.
+// ExeCmd is a simple wrapper of exec.Cmd.CombinedOutput.
 func ExeCmd(name string, args []string, setter func(*exec.Cmd)) ([]byte, error) {
 	c := exec.Command(name, args...)
 	if setter != nil {
 		setter(c)
 	}
 	return c.CombinedOutput()
+}
+
+// RunCmd is a simple wrapper of exec.Cmd.Run.
+func RunCmd(name string, args []string, setter func(*exec.Cmd)) error {
+	c := exec.Command(name, args...)
+	if setter != nil {
+		setter(c)
+	}
+	return c.Run()
 }
 
 func NoHup(cmd string, args []string, setter func(*exec.Cmd)) ([]byte, error) {
@@ -71,6 +80,5 @@ func KillPID(pid int) error {
 		return nil
 	}
 
-	_, err := ExeCmd("kill", []string{strconv.Itoa(pid)}, nil)
-	return err
+	return RunCmd("kill", []string{strconv.Itoa(pid)}, nil)
 }
